@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: cvAzZAIF1vd8Dh5J5mEr0NwZAP4mzjkKXJPZy2PaaFR8kJITNxvXBtpG6ahCsvL4bhNZPnhu3ZH1f/vuRHRqLArt7uUTJWRBUFjIn7Erhk6sz30MZz/jyXUuHC+TmwT4FymRE0LcuBnqgtyJwfOvV3z74tomDDZ/13omf2DoTPXx7RnT+feV3AKmgDsRg2OvwJVH1+6jbFBKNcBBgdISfhRGkBoKwhvchaXlIOMsEjXU0ExpognFw175ZCVHHj/pNT3kt7ot6qgIrrIs1EPdMAOcj3p1utRiGoVwQbfKi6E+mbSDK9+q79v9p6xMcxtmRh7KEb+cSHagX8Sw4jFLKyV03z2NLyvTKya6adAxSSgYsfboaoLcHSpGDuAEI0R3JwNyNesCn/8meZlSF4jAxWrmriRogV3XbH4waOGBcXrNjHVEIskF3UfZDzQ+/K6zCS9Cxh8Lw452PbMfrj07iapMXvEVNUVjf1e8fcigWj6QYtKDc5ChtVuCSUfV0MraRH18bJZ5npKZMLNhMO2HyvGmbCKJXIa8SaUKXKD8Lag5fruRqJK1H8qZ/cXNVDDdw5Aercs5kF/QuvdEBZ2dIjL2eIcvMqIPIlqavimQwhCl5RxcW4d34gcuxAi899vr221N3ch0dElskoWjdkIYKusE2/4K2AvKMELv41T4pBY=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Lord-Ormont-and-His-Aminta-Volume-2_4478
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
